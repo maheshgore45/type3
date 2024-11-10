@@ -1,0 +1,301 @@
+111111111111111111111111111111111111111111111111111111111111111111111
+import pandas as pd
+
+df = pd.read_csv('uber.csv')
+
+df
+
+print(df.isnull().sum())
+
+df = df.dropna()
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+sns.boxplot(x=df['fare_amount'])
+plt.show()
+
+sns.boxplot(x=df['passenger_count'])
+plt.show()
+
+Q1 = df['fare_amount'].quantile(0.25)
+Q3 = df['fare_amount'].quantile(0.75)
+IQR = Q3 - Q1
+df = df[~((df['fare_amount'] < (Q1 - 1.5 * IQR)) | (df['fare_amount'] > (Q3 + 1.5 * IQR)))]
+
+sns.boxplot(x=df['fare_amount'])
+plt.show()
+
+import numpy as np
+
+def haversine(lon1, lat1, lon2, lat2):
+    R = 6371
+    lon1, lon2 = np.radians(lon1), np.radians(lon2)
+    lat1, lat2 = np.radians(lat1), np.radians(lat2)
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = np.sin(dlat/2) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2) ** 2
+    c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
+    return R * c
+
+df['distance'] = haversine(df['pickup_longitude'], df['pickup_latitude'], df['dropoff_longitude'], df['dropoff_latitude'])
+
+from sklearn.model_selection import train_test_split
+
+x = df[['distance', 'passenger_count']]
+
+y = df['fare_amount']
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+lr = LinearRegression()
+
+lr.fit(x_train, y_train)
+
+y_pred_lr = lr.predict(x_test)
+
+rmse_lr = np.sqrt(mean_squared_error(y_test, y_pred_lr))
+
+r2_lr = r2_score(y_test, y_pred_lr)
+
+print(f"Linear Regression  - RMSE : {rmse_lr}, R2 : {r2_lr}")
+
+from sklearn.ensemble import RandomForestRegressor
+
+rf = RandomForestRegressor(n_estimators=100, random_state=42)
+
+rf.fit(x_train, y_train)
+
+y_pred_rf = rf.predict(x_test)
+
+rmse_rf = np.sqrt(mean_squared_error(y_test, y_pred_rf))
+
+r2_rf = r2_score(y_test, y_pred_rf)
+
+print(f"Linear Regression  - RMSE : {rmse_rf}, R2 : {r2_rf}")
+
+
+2222222222222222222222222222222222222222222222222222222222222222
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+%matplotlib inline
+import warnings
+warnings.filterwarnings('ignore')
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn import metrics
+
+df=pd.read_csv("emails.csv")
+
+df.head()
+
+df.columns
+
+df.isnull().sum()
+
+df.dropna(inplace = True)
+
+df.drop(['Email No.'],axis=1,inplace=True)
+X = df.drop(['Prediction'],axis = 1)
+y = df['Prediction']
+
+from sklearn.preprocessing import scale
+X = scale(X)
+# split into train and test
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, random_state = 42)
+
+from sklearn.neighbors import KNeighborsClassifier
+knn = KNeighborsClassifier(n_neighbors=7)
+ 
+knn.fit(X_train, y_train)
+y_pred = knn.predict(X_test)
+
+print("Prediction",y_pred)
+
+print("KNN accuracy = ",metrics.accuracy_score(y_test,y_pred))
+
+print("Confusion matrix\n",metrics.confusion_matrix(y_test,y_pred))
+
+### Metrics Evaluation using R2, Mean Squared Error, Mean Absolute Error, Root Mean Squared Error
+
+from sklearn.metrics import r2_score 
+
+r2_score(y_test,y_pred)
+
+from sklearn.metrics import mean_squared_error,mean_absolute_error
+
+MSE = mean_squared_error(y_test,y_pred)
+
+MSE 
+
+MAE= mean_absolute_error(y_test, y_pred)
+
+MAE
+
+RMSE = np.sqrt(MSE)
+
+RMSE
+
+# cost C = 1
+model = SVC(C = 1)
+
+# fit
+model.fit(X_train, y_train)
+
+# predict
+y_pred = model.predict(X_test)
+
+metrics.confusion_matrix(y_true=y_test, y_pred=y_pred)
+
+print("SVM accuracy = ",metrics.accuracy_score(y_test,y_pred))
+
+### Metrics Evaluation using R2, Mean Squared Error, Mean Absolute Error, Root Mean Squared Error
+
+from sklearn.metrics import r2_score 
+
+r2_score(y_test,y_pred)
+
+from sklearn.metrics import mean_squared_error,mean_absolute_error
+
+MSE = mean_squared_error(y_test,y_pred)
+
+MSE
+
+RMSE = np.sqrt(MSE)
+
+RMSE
+
+MAE= mean_absolute_error(y_test, y_pred)
+
+MAE
+
+33333333333333333333333333333333333333333333333333333333333333333333333333333333
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt #Importing the libraries
+
+df = pd.read_csv("Churn_Modelling.csv")
+
+df.head()
+
+df.shape
+
+df.describe()
+
+df.isnull()
+
+df.isnull().sum()
+
+df.info()
+
+df.dtypes
+
+df.columns
+
+df = df.drop(['RowNumber', 'Surname', 'CustomerId'], axis= 1) #Dropping the unnecessary columns 
+
+df.head()
+
+def visualization(x, y, xlabel):
+    plt.figure(figsize=(10,5))
+    plt.hist([x, y], color=['red', 'green'], label = ['exit', 'not_exit'])
+    plt.xlabel(xlabel,fontsize=20)
+    plt.ylabel("No. of customers", fontsize=20)
+    plt.legend()
+
+df_churn_exited = df[df['Exited']==1]['Tenure']
+df_churn_not_exited = df[df['Exited']==0]['Tenure']
+
+visualization(df_churn_exited, df_churn_not_exited, "Tenure")
+
+df_churn_exited2 = df[df['Exited']==1]['Age']
+df_churn_not_exited2 = df[df['Exited']==0]['Age']
+
+visualization(df_churn_exited2, df_churn_not_exited2, "Age")
+
+X = df[['CreditScore','Gender','Age','Tenure','Balance','NumOfProducts','HasCrCard','IsActiveMember','EstimatedSalary']]
+states = pd.get_dummies(df['Geography'],drop_first = True)
+gender = pd.get_dummies(df['Gender'],drop_first = True)
+
+
+df = pd.concat([df,gender,states], axis = 1)
+
+df.head()
+
+X = df[['CreditScore','Age','Tenure','Balance','NumOfProducts','HasCrCard','IsActiveMember','EstimatedSalary','Male','Germany','Spain']]
+
+y = df['Exited']
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size = 0.30)
+
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+
+X_train  = sc.fit_transform(X_train)
+X_test = sc.transform(X_test)
+
+X_train
+
+X_test
+
+pip install keras
+
+pip install tensorflow
+
+import keras #Keras is the wrapper on the top of tenserflow
+#Can use Tenserflow as well but won't be able to understand the errors initially. 
+
+from keras.models import Sequential #To create sequential neural network
+from keras.layers import Dense #To create hidden layers
+
+classifier = Sequential()
+
+#To add the layers
+#Dense helps to contruct the neurons
+#Input Dimension means we have 11 features 
+# Units is to create the hidden layers
+#Uniform helps to distribute the weight uniformly
+classifier.add(Dense(activation = "relu",input_dim = 11,units = 6,kernel_initializer = "uniform")) 
+
+classifier.add(Dense(activation = "relu",units = 6,kernel_initializer = "uniform"))   #Adding second hidden layers
+
+classifier.add(Dense(activation = "sigmoid",units = 1,kernel_initializer = "uniform")) #Final neuron will be having siigmoid function
+
+classifier.compile(optimizer="adam",loss = 'binary_crossentropy',metrics = ['accuracy']) #To compile the Artificial Neural Network. Ussed Binary crossentropy as we just have only two output
+
+classifier.summary() #3 layers created. 6 neurons in 1st,6neurons in 2nd layer and 1 neuron in last
+
+classifier.fit(X_train,y_train,batch_size=10,epochs=50) #Fitting the ANN to training dataset
+
+y_pred =classifier.predict(X_test)
+y_pred = (y_pred > 0.5) #Predicting the result
+
+from sklearn.metrics import confusion_matrix,accuracy_score,classification_report
+
+cm = confusion_matrix(y_test,y_pred)
+cm
+
+accuracy = accuracy_score(y_test,y_pred)
+accuracy
+
+plt.figure(figsize = (10,7))
+sns.heatmap(cm,annot = True)
+plt.xlabel('Predicted')
+plt.ylabel('Truth')
+
+print(classification_report(y_test,y_pred))
+
+444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444
+
+
+
+
